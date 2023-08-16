@@ -1,7 +1,6 @@
 package net.cubicworld.tradeisland.trade;
 
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
@@ -16,7 +15,7 @@ public class Transaction {
         this.player1 = player1;
         this.player2 = player2;
 
-        inventory = Bukkit.createInventory(null, 54, "Trade");
+        inventory = TradeInventory.getInventory(player1, player2);
 
         player1.openInventory(inventory);
         player2.openInventory(inventory);
