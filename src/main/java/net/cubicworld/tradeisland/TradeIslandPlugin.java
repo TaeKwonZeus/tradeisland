@@ -11,6 +11,7 @@ public class TradeIslandPlugin extends JavaPlugin {
     public void onEnable() {
         TradeManager tradeManager = new TradeManager(this);
 
+        Bukkit.getPluginManager().registerEvents(tradeManager, this);
         Objects.requireNonNull(getCommand("trade")).setExecutor(tradeManager);
 
         Bukkit.getLogger().info("Plugin enabled!");
