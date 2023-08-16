@@ -1,0 +1,9 @@
+main: net.cubicworld.tradeisland.TradeIslandPlugin
+name: TradeIsland
+version: 1.0-SNAPSHOT
+author: bakane
+api-version: 1.20
+commands:
+  trade:
+    description: Trade with another player
+    usage: /<command>
