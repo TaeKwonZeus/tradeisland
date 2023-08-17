@@ -47,7 +47,7 @@ public class TradeManager implements Listener, CommandExecutor {
 
     private Transaction getTransaction(Inventory inventory) {
         return transactions.stream()
-                .filter(t -> t.getInventory().equals(inventory))
+                .filter(t -> t.usesInventory(inventory))
                 .findFirst()
                 .orElse(null);
     }

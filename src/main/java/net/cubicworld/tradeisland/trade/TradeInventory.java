@@ -8,20 +8,19 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
 public class TradeInventory {
-    private static final int ITEM_SLOT_A = 0;
-    private static final int ITEM_SLOT_B = 1;
-    private static final int CONFIRM_A = 2;
-    private static final int CONFIRM_B = 3;
+    private static final int ITEM_SLOT_PLAYER_1 = 0;
+    private static final int ITEM_SLOT_PLAYER_2 = 1;
+    private static final int CONFIRM_PLAYER_1 = 2;
+    private static final int CONFIRM_PLAYER_2 = 3;
     private static final int HEAD_A = 4;
     private static final int HEAD_B = 5;
     private static final int DECORATION = 6;
-    private static final int CURRENCY = 7;
 
     private static final int[] LAYOUT = {
             6, 6, 6, 6, 6, 6, 6, 6, 6,
             0, 6, 4, 2, 6, 3, 5, 6, 1,
-            0, 6, 6, 7, 6, 7, 6, 6, 1,
-            0, 0, 6, 6, 6, 6, 6, 1, 1,
+            0, 6, 6, 6, 6, 6, 6, 6, 1,
+            0, 0, 0, 0, 6, 1, 1, 1, 1,
             0, 0, 0, 0, 6, 1, 1, 1, 1,
             0, 0, 0, 0, 6, 1, 1, 1, 1
     };
@@ -31,16 +30,23 @@ public class TradeInventory {
     private static final Material DECORATION_MATERIAL = Material.BLUE_STAINED_GLASS_PANE;
     private static final Material CURRENCY_MATERIAL = Material.DIAMOND;
 
-    public static Inventory getInventory(Player player1, Player player2) {
-        Inventory inventory = Bukkit.createInventory(null, 54, "Trade");
+    private final Inventory inventory;
+
+    private final Player player1;
+    private final Player player2;
+
+    public TradeInventory(Player player1, Player player2) {
+        this.player1 = player1;
+        this.player2 = player2;
+
+        inventory = Bukkit.createInventory(null, 54, "Trade");
 
         for (int i = 0; i < LAYOUT.length; i++) {
             int cell = LAYOUT[i];
             ItemStack item = switch (cell) {
-                case ITEM_SLOT_A, ITEM_SLOT_B -> new ItemStack(Material.AIR);
-                case CONFIRM_A, CONFIRM_B -> new ItemStack(CONFIRM_OFF_MATERIAL);
+                case ITEM_SLOT_PLAYER_1, ITEM_SLOT_PLAYER_2 -> new ItemStack(Material.AIR);
+                case CONFIRM_PLAYER_1, CONFIRM_PLAYER_2 -> new ItemStack(CONFIRM_OFF_MATERIAL);
                 case DECORATION -> new ItemStack(DECORATION_MATERIAL);
-                case CURRENCY -> new ItemStack(CURRENCY_MATERIAL);
                 case HEAD_A -> getHead(player1);
                 case HEAD_B -> getHead(player2);
                 default -> throw new IllegalStateException("Unexpected value: " + cell);
@@ -48,8 +54,44 @@ public class TradeInventory {
 
             inventory.setItem(i, item);
         }
+    }
 
-        return inventory;
+    public void open() {
+        player1.openInventory(inventory);
+        player2.openInventory(inventory);
+    }
+
+    public void close() {
+        if (player1.getOpenInventory().getTopInventory() == inventory) {
+            player1.closeInventory();
+        }
+        if (player2.getOpenInventory().getTopInventory() == inventory) {
+            player2.closeInventory();
+        }
+    }
+
+    public boolean usesInventory(Inventory inventory) {
+        return this.inventory.equals(inventory);
+    }
+
+    public void setPlayer1Confirm(boolean value) {
+        setConfirm(value, CONFIRM_PLAYER_1);
+    }
+
+    public void setPlayer2Confirm(boolean value) {
+        setConfirm(value, CONFIRM_PLAYER_2);
+    }
+
+    private void setConfirm(boolean value, int confirmCell) {
+        for (int i = 0; i < LAYOUT.length; i++) {
+            if (LAYOUT[i] != confirmCell) continue;
+
+            if (value) {
+                inventory.setItem(i, new ItemStack(CONFIRM_ON_MATERIAL));
+            } else {
+                inventory.setItem(i, new ItemStack(CONFIRM_OFF_MATERIAL));
+            }
+        }
     }
 
     private static ItemStack getHead(Player player) {
