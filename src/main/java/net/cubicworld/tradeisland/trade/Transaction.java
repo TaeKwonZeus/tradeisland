@@ -29,18 +29,22 @@ public class Transaction {
             case TradeInventory.DECORATION, TradeInventory.HEAD_A, TradeInventory.HEAD_B -> event.setCancelled(true);
             case TradeInventory.CONFIRM_PLAYER_1 -> {
                 event.setCancelled(true);
-                player1Confirm = !player1Confirm;
-                inventory.setPlayer1Confirm(player1Confirm);
-                if (checkConfirmation()) {
-                    return TransactionStatus.CLOSED;
+                if (event.getWhoClicked().equals(player1)) {
+                    player1Confirm = !player1Confirm;
+                    inventory.setPlayer1Confirm(player1Confirm);
+                    if (checkConfirmation()) {
+                        return TransactionStatus.CLOSED;
+                    }
                 }
             }
             case TradeInventory.CONFIRM_PLAYER_2 -> {
                 event.setCancelled(true);
-                player2Confirm = !player2Confirm;
-                inventory.setPlayer2Confirm(player2Confirm);
-                if (checkConfirmation()) {
-                    return TransactionStatus.CLOSED;
+                if (event.getWhoClicked().equals(player2)) {
+                    player2Confirm = !player2Confirm;
+                    inventory.setPlayer2Confirm(player2Confirm);
+                    if (checkConfirmation()) {
+                        return TransactionStatus.CLOSED;
+                    }
                 }
             }
         }
