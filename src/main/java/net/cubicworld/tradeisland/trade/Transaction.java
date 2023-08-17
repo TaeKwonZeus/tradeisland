@@ -25,6 +25,7 @@ public class Transaction {
 
     public TransactionStatus processInventoryClick(InventoryClickEvent event) {
         int cellType = TradeInventory.getCellType(event.getSlot());
+
         switch (cellType) {
             case TradeInventory.DECORATION, TradeInventory.HEAD_A, TradeInventory.HEAD_B -> event.setCancelled(true);
             case TradeInventory.CONFIRM_PLAYER_1 -> {
@@ -45,6 +46,16 @@ public class Transaction {
                     if (checkConfirmation()) {
                         return TransactionStatus.CLOSED;
                     }
+                }
+            }
+            case TradeInventory.ITEM_SLOT_PLAYER_1 -> {
+                if (!event.getWhoClicked().equals(player1)) {
+                    event.setCancelled(true);
+                }
+            }
+            case TradeInventory.ITEM_SLOT_PLAYER_2 -> {
+                if (!event.getWhoClicked().equals(player2)) {
+                    event.setCancelled(true);
                 }
             }
         }
