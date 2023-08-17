@@ -4,6 +4,9 @@ import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
 
 @Getter
 public class Transaction {
@@ -23,58 +26,51 @@ public class Transaction {
         inventory.open();
     }
 
-    public TransactionStatus processInventoryClick(InventoryClickEvent event) {
+    public void processInventoryClick(InventoryClickEvent event) {
         int cellType = TradeInventory.getCellType(event.getSlot());
 
         switch (cellType) {
             case TradeInventory.DECORATION, TradeInventory.HEAD_A, TradeInventory.HEAD_B -> event.setCancelled(true);
             case TradeInventory.CONFIRM_PLAYER_1 -> {
                 event.setCancelled(true);
-                if (event.getWhoClicked().equals(player1)) {
-                    player1Confirm = !player1Confirm;
-                    inventory.setPlayer1Confirm(player1Confirm);
-                    if (checkConfirmation()) {
-                        return TransactionStatus.CLOSED;
-                    }
-                }
+                if (!event.getWhoClicked().equals(player1)) return;
+                player1Confirm = !player1Confirm;
+                inventory.setPlayer1Confirm(player1Confirm);
             }
             case TradeInventory.CONFIRM_PLAYER_2 -> {
                 event.setCancelled(true);
-                if (event.getWhoClicked().equals(player2)) {
-                    player2Confirm = !player2Confirm;
-                    inventory.setPlayer2Confirm(player2Confirm);
-                    if (checkConfirmation()) {
-                        return TransactionStatus.CLOSED;
-                    }
-                }
+                if (!event.getWhoClicked().equals(player2)) return;
+                player2Confirm = !player2Confirm;
+                inventory.setPlayer2Confirm(player2Confirm);
             }
             case TradeInventory.ITEM_SLOT_PLAYER_1 -> {
-                if (!event.getWhoClicked().equals(player1)) {
-                    event.setCancelled(true);
-                }
+                if (!event.getWhoClicked().equals(player1)) event.setCancelled(true);
             }
             case TradeInventory.ITEM_SLOT_PLAYER_2 -> {
-                if (!event.getWhoClicked().equals(player2)) {
-                    event.setCancelled(true);
-                }
+                if (!event.getWhoClicked().equals(player2)) event.setCancelled(true);
             }
         }
-
-        return TransactionStatus.PROCESSING;
     }
 
     public boolean usesInventory(Inventory inventory) {
         return this.inventory.usesInventory(inventory);
     }
 
-    private boolean checkConfirmation() {
-        if (!player1Confirm || !player2Confirm) return false;
+    public boolean bothConfirmed() {
+        return player1Confirm && player2Confirm;
+    }
+
+    public void complete() {
+        List<ItemStack> player1Items = inventory.getPlayer1Items();
+        List<ItemStack> player2Items = inventory.getPlayer2Items();
+
+        // Drop items at opposite players' locations
+        for (ItemStack item : player1Items) player2.getWorld().dropItem(player2.getLocation(), item);
+        for (ItemStack item : player2Items) player2.getWorld().dropItem(player1.getLocation(), item);
 
         inventory.close();
 
-        player1.sendMessage("Transaction commencing...");
-        player2.sendMessage("Transaction commencing...");
-
-        return true;
+        player1.sendMessage("Transaction completed!");
+        player2.sendMessage("Transaction completed!");
     }
 }

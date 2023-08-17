@@ -7,6 +7,10 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 public class TradeInventory {
     public static final int ITEM_SLOT_PLAYER_1 = 0;
     public static final int ITEM_SLOT_PLAYER_2 = 1;
@@ -74,6 +78,20 @@ public class TradeInventory {
         }
     }
 
+    public List<ItemStack> getPlayer1Items() {
+        return getIndices(ITEM_SLOT_PLAYER_1).stream()
+                .map(inventory::getItem)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    public List<ItemStack> getPlayer2Items() {
+        return getIndices(ITEM_SLOT_PLAYER_2).stream()
+                .map(inventory::getItem)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
     public boolean usesInventory(Inventory inventory) {
         return this.inventory.equals(inventory);
     }
@@ -84,6 +102,18 @@ public class TradeInventory {
 
     public void setPlayer2Confirm(boolean value) {
         setConfirm(value, CONFIRM_PLAYER_2);
+    }
+
+    private List<Integer> getIndices(int cellType) {
+        List<Integer> indices = new ArrayList<>();
+
+        for (int i = 0; i < LAYOUT.length; i++) {
+            if (LAYOUT[i] == cellType) {
+                indices.add(i);
+            }
+        }
+
+        return indices;
     }
 
     private void setConfirm(boolean value, int confirmCell) {

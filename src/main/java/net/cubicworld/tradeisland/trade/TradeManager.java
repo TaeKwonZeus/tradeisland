@@ -42,7 +42,9 @@ public class TradeManager implements Listener, CommandExecutor {
         Transaction transaction = getTransaction(event.getClickedInventory());
         if (!transactions.contains(transaction)) return;
 
-        if (transaction.processInventoryClick(event) == TransactionStatus.CLOSED) {
+        transaction.processInventoryClick(event);
+        if (transaction.bothConfirmed()) {
+            transaction.complete();
             transactions.remove(transaction);
         }
 
