@@ -23,11 +23,43 @@ public class Transaction {
         inventory.open();
     }
 
-    public void processInventoryClick(InventoryClickEvent event) {
+    public TransactionStatus processInventoryClick(InventoryClickEvent event) {
         int cellType = TradeInventory.getCellType(event.getSlot());
+        switch (cellType) {
+            case TradeInventory.DECORATION, TradeInventory.HEAD_A, TradeInventory.HEAD_B -> event.setCancelled(true);
+            case TradeInventory.CONFIRM_PLAYER_1 -> {
+                event.setCancelled(true);
+                player1Confirm = !player1Confirm;
+                inventory.setPlayer1Confirm(player1Confirm);
+                if (checkConfirmation()) {
+                    return TransactionStatus.CLOSED;
+                }
+            }
+            case TradeInventory.CONFIRM_PLAYER_2 -> {
+                event.setCancelled(true);
+                player2Confirm = !player2Confirm;
+                inventory.setPlayer2Confirm(player2Confirm);
+                if (checkConfirmation()) {
+                    return TransactionStatus.CLOSED;
+                }
+            }
+        }
+
+        return TransactionStatus.PROCESSING;
     }
 
     public boolean usesInventory(Inventory inventory) {
         return this.inventory.usesInventory(inventory);
+    }
+
+    private boolean checkConfirmation() {
+        if (!player1Confirm || !player2Confirm) return false;
+
+        inventory.close();
+
+        player1.sendMessage("Transaction commencing...");
+        player2.sendMessage("Transaction commencing...");
+
+        return true;
     }
 }
