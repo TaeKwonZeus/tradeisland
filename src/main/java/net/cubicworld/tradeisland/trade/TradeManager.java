@@ -39,8 +39,10 @@ public class TradeManager implements Listener, CommandExecutor {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        Transaction transaction = getTransaction(event.getInventory());
+        Transaction transaction = getTransaction(event.getClickedInventory());
         if (!transactions.contains(transaction)) return;
+
+        transaction.processInventoryClick(event);
 
         event.getWhoClicked().sendMessage("Clicked in trade inventory!");
     }

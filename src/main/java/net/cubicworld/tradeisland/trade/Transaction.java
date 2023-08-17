@@ -2,6 +2,7 @@ package net.cubicworld.tradeisland.trade;
 
 import lombok.Getter;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 
 @Getter
@@ -20,6 +21,10 @@ public class Transaction {
 
         inventory = new TradeInventory(player1, player2);
         inventory.open();
+    }
+
+    public void processInventoryClick(InventoryClickEvent event) {
+        int cellType = TradeInventory.getCellType(event.getSlot());
     }
 
     public boolean usesInventory(Inventory inventory) {

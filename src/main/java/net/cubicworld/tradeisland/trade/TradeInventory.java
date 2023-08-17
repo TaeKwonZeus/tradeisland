@@ -8,13 +8,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
 public class TradeInventory {
-    private static final int ITEM_SLOT_PLAYER_1 = 0;
-    private static final int ITEM_SLOT_PLAYER_2 = 1;
-    private static final int CONFIRM_PLAYER_1 = 2;
-    private static final int CONFIRM_PLAYER_2 = 3;
-    private static final int HEAD_A = 4;
-    private static final int HEAD_B = 5;
-    private static final int DECORATION = 6;
+    public static final int ITEM_SLOT_PLAYER_1 = 0;
+    public static final int ITEM_SLOT_PLAYER_2 = 1;
+    public static final int CONFIRM_PLAYER_1 = 2;
+    public static final int CONFIRM_PLAYER_2 = 3;
+    public static final int HEAD_A = 4;
+    public static final int HEAD_B = 5;
+    public static final int DECORATION = 6;
 
     private static final int[] LAYOUT = {
             6, 6, 6, 6, 6, 6, 6, 6, 6,
@@ -29,6 +29,10 @@ public class TradeInventory {
     private static final Material CONFIRM_ON_MATERIAL = Material.LIME_TERRACOTTA;
     private static final Material DECORATION_MATERIAL = Material.BLUE_STAINED_GLASS_PANE;
     private static final Material CURRENCY_MATERIAL = Material.DIAMOND;
+
+    public static int getCellType(int index) {
+        return LAYOUT[index];
+    }
 
     private final Inventory inventory;
 
