@@ -13,8 +13,8 @@ public class Transaction {
     private final Player player1;
     private final Player player2;
 
-    private boolean player1Confirm = false;
-    private boolean player2Confirm = false;
+    private boolean player1Confirmed = false;
+    private boolean player2Confirmed = false;
 
     private final TradeInventory inventory;
 
@@ -27,28 +27,23 @@ public class Transaction {
     }
 
     public void processInventoryClick(InventoryClickEvent event) {
-        int cellType = TradeInventory.getCellType(event.getSlot());
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (!player.equals(player1) && !player.equals(player2)) return;
 
-        switch (cellType) {
-            case TradeInventory.DECORATION, TradeInventory.HEAD_A, TradeInventory.HEAD_B -> event.setCancelled(true);
-            case TradeInventory.CONFIRM_PLAYER_1 -> {
-                event.setCancelled(true);
-                if (!event.getWhoClicked().equals(player1)) return;
-                player1Confirm = !player1Confirm;
-                inventory.setPlayer1Confirm(player1Confirm);
+        CellType cellType = TradeInventory.getCellType(event.getSlot());
+
+        event.setCancelled(true);
+
+        if (cellType == CellType.CONFIRM_MAIN) {
+            if (player.equals(player1)) {
+                player1Confirmed = !player1Confirmed;
+                inventory.setPlayer1Confirm(player1Confirmed);
+            } else {
+                player2Confirmed = !player2Confirmed;
+                inventory.setPlayer2Confirm(player2Confirmed);
             }
-            case TradeInventory.CONFIRM_PLAYER_2 -> {
-                event.setCancelled(true);
-                if (!event.getWhoClicked().equals(player2)) return;
-                player2Confirm = !player2Confirm;
-                inventory.setPlayer2Confirm(player2Confirm);
-            }
-            case TradeInventory.ITEM_SLOT_PLAYER_1 -> {
-                if (!event.getWhoClicked().equals(player1)) event.setCancelled(true);
-            }
-            case TradeInventory.ITEM_SLOT_PLAYER_2 -> {
-                if (!event.getWhoClicked().equals(player2)) event.setCancelled(true);
-            }
+        } else if (cellType == CellType.ITEM_SLOT_MAIN) {
+            // TODO handle setting items
         }
     }
 
@@ -57,7 +52,7 @@ public class Transaction {
     }
 
     public boolean bothConfirmed() {
-        return player1Confirm && player2Confirm;
+        return player1Confirmed && player2Confirmed;
     }
 
     public void complete() {
