@@ -32,7 +32,7 @@ public class TradeManager implements Listener, CommandExecutor {
             return true;
         }
 
-        transactions.add(new Transaction(player, other));
+        transactions.add(new Transaction(plugin, player, other));
 
         return true;
     }
@@ -40,6 +40,7 @@ public class TradeManager implements Listener, CommandExecutor {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         Transaction transaction = getTransaction(event.getClickedInventory());
+        if (transaction == null) return;
         if (!transactions.contains(transaction)) return;
 
         transaction.processInventoryClick(event);

@@ -1,6 +1,8 @@
 package net.cubicworld.tradeisland.trade;
 
 import lombok.Getter;
+import net.cubicworld.tradeisland.TradeIslandPlugin;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -10,6 +12,8 @@ import java.util.List;
 
 @Getter
 public class Transaction {
+    private final TradeIslandPlugin plugin;
+
     private final Player player1;
     private final Player player2;
 
@@ -18,11 +22,12 @@ public class Transaction {
 
     private final TradeInventory inventory;
 
-    public Transaction(Player player1, Player player2) {
+    public Transaction(TradeIslandPlugin plugin, Player player1, Player player2) {
+        this.plugin = plugin;
         this.player1 = player1;
         this.player2 = player2;
 
-        inventory = new TradeInventory(player1, player2);
+        inventory = new TradeInventory(plugin, player1, player2);
         inventory.open();
     }
 
@@ -32,9 +37,8 @@ public class Transaction {
 
         CellType cellType = TradeInventory.getCellType(event.getSlot());
 
-        event.setCancelled(true);
-
         if (cellType == CellType.CONFIRM_MAIN) {
+            event.setCancelled(true);
             if (player.equals(player1)) {
                 player1Confirmed = !player1Confirmed;
                 inventory.setPlayer1Confirm(player1Confirmed);
@@ -43,7 +47,9 @@ public class Transaction {
                 inventory.setPlayer2Confirm(player2Confirmed);
             }
         } else if (cellType == CellType.ITEM_SLOT_MAIN) {
-            // TODO handle setting items
+            Bukkit.getScheduler().runTask(plugin, () -> inventory.reflectItemChange(player, event.getSlot()));
+        } else {
+            event.setCancelled(true);
         }
     }
 
