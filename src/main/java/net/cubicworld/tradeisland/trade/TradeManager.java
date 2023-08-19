@@ -32,6 +32,11 @@ public class TradeManager implements Listener, CommandExecutor {
             return true;
         }
 
+        if (other.equals(player)) {
+            player.sendMessage("You can't trade with yourself!");
+            return true;
+        }
+
         transactions.add(new Transaction(plugin, player, other));
 
         return true;
@@ -51,6 +56,8 @@ public class TradeManager implements Listener, CommandExecutor {
 
         event.getWhoClicked().sendMessage("Clicked in trade inventory!");
     }
+
+    // TODO handle sudden inventory closing as cancelled trade
 
     private Transaction getTransaction(Inventory inventory) {
         if (inventory == null) return null;
