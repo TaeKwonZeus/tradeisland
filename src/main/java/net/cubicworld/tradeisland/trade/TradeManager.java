@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 
 import java.util.ArrayList;
@@ -46,18 +47,22 @@ public class TradeManager implements Listener, CommandExecutor {
     public void onInventoryClick(InventoryClickEvent event) {
         Transaction transaction = getTransaction(event.getClickedInventory());
         if (transaction == null) return;
-        if (!transactions.contains(transaction)) return;
 
         transaction.processInventoryClick(event);
         if (transaction.bothConfirmed()) {
             transaction.complete();
             transactions.remove(transaction);
         }
-
-        event.getWhoClicked().sendMessage("Clicked in trade inventory!");
     }
 
-    // TODO handle sudden inventory closing as cancelled trade
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        Transaction transaction = getTransaction(event.getInventory());
+        if (transaction == null) return;
+
+        transaction.cancel();
+        transactions.remove(transaction);
+    }
 
     private Transaction getTransaction(Inventory inventory) {
         if (inventory == null) return null;

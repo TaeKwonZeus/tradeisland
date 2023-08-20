@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
@@ -58,7 +59,6 @@ public class TradeInventory {
         player2Inventory = generateInventory(player2, player1);
     }
 
-    // TODO fix item names
     private Inventory generateInventory(Player main, Player other) {
         Inventory inventory = Bukkit.createInventory(main, 54, "Trade");
 
@@ -83,7 +83,11 @@ public class TradeInventory {
 
     private ItemStack newItemStackWithName(Material material, String name) {
         ItemStack itemStack = new ItemStack(material);
-        Objects.requireNonNull(itemStack.getItemMeta()).setDisplayName(name);
+        ItemMeta meta = itemStack.getItemMeta();
+        if (meta == null) return itemStack;
+
+        meta.setDisplayName(name);
+        itemStack.setItemMeta(meta);
 
         return itemStack;
     }
@@ -135,14 +139,15 @@ public class TradeInventory {
         return inventory.equals(player1Inventory) || inventory.equals(player2Inventory);
     }
 
-    public void setPlayer1Confirm(boolean value) {
+    public void setPlayer1Confirmed(boolean value) {
         setPlayerConfirm(value, player1Inventory, player2Inventory);
     }
 
-    public void setPlayer2Confirm(boolean value) {
+    public void setPlayer2Confirmed(boolean value) {
         setPlayerConfirm(value, player2Inventory, player1Inventory);
     }
 
+    // TODO set proper names for every cell type (CONFIRM_OFF_MATERIAL, DECORATION)
     private void setPlayerConfirm(boolean value, Inventory mainInventory, Inventory otherInventory) {
         for (int i = 0; i < LAYOUT.length; i++) {
             if (LAYOUT[i] == CONFIRM_MAIN)
@@ -153,23 +158,25 @@ public class TradeInventory {
     }
 
     public void reflectItemChange(Player player, int index) {
-        if (!matchingSlotIndices.containsKey(index)) throw new IllegalStateException("Invalid index");
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            if (!matchingSlotIndices.containsKey(index)) throw new IllegalStateException("Invalid index");
 
-        if (player.equals(player1)) {
-            ItemStack itemStack = player1Inventory.getItem(index);
-            if (itemStack == null || itemStack.getType() == Material.AIR) {
-                player2Inventory.setItem(matchingSlotIndices.get(index), new ItemStack(Material.AIR));
-            } else {
-                player2Inventory.setItem(matchingSlotIndices.get(index), new ItemStack(itemStack));
+            if (player.equals(player1)) {
+                ItemStack itemStack = player1Inventory.getItem(index);
+                if (itemStack == null || itemStack.getType() == Material.AIR) {
+                    player2Inventory.setItem(matchingSlotIndices.get(index), new ItemStack(Material.AIR));
+                } else {
+                    player2Inventory.setItem(matchingSlotIndices.get(index), new ItemStack(itemStack));
+                }
+            } else if (player.equals(player2)) {
+                ItemStack itemStack = player2Inventory.getItem(index);
+                if (itemStack == null || itemStack.getType() == Material.AIR) {
+                    player1Inventory.setItem(matchingSlotIndices.get(index), new ItemStack(Material.AIR));
+                } else {
+                    player1Inventory.setItem(matchingSlotIndices.get(index), new ItemStack(itemStack));
+                }
             }
-        } else if (player.equals(player2)) {
-            ItemStack itemStack = player2Inventory.getItem(index);
-            if (itemStack == null || itemStack.getType() == Material.AIR) {
-                player1Inventory.setItem(matchingSlotIndices.get(index), new ItemStack(Material.AIR));
-            } else {
-                player1Inventory.setItem(matchingSlotIndices.get(index), new ItemStack(itemStack));
-            }
-        }
+        });
     }
 
     private static List<Integer> getIndices(int cellType) {

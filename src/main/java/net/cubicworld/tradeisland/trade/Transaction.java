@@ -2,7 +2,6 @@ package net.cubicworld.tradeisland.trade;
 
 import lombok.Getter;
 import net.cubicworld.tradeisland.TradeIslandPlugin;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -40,14 +39,14 @@ public class Transaction {
         if (cellType == CellType.CONFIRM_MAIN) {
             event.setCancelled(true);
             if (player.equals(player1)) {
-                player1Confirmed = !player1Confirmed;
-                inventory.setPlayer1Confirm(player1Confirmed);
+                setPlayer1Confirmed(!player1Confirmed);
             } else {
-                player2Confirmed = !player2Confirmed;
-                inventory.setPlayer2Confirm(player2Confirmed);
+                setPlayer2Confirmed(!player2Confirmed);
             }
         } else if (cellType == CellType.ITEM_SLOT_MAIN) {
-            Bukkit.getScheduler().runTask(plugin, () -> inventory.reflectItemChange(player, event.getSlot()));
+            setPlayer1Confirmed(false);
+            setPlayer2Confirmed(false);
+            inventory.reflectItemChange(player, event.getSlot());
         } else {
             event.setCancelled(true);
         }
@@ -67,11 +66,35 @@ public class Transaction {
 
         // Drop items at opposite players' locations
         for (ItemStack item : player1Items) player2.getWorld().dropItem(player2.getLocation(), item);
-        for (ItemStack item : player2Items) player2.getWorld().dropItem(player1.getLocation(), item);
+        for (ItemStack item : player2Items) player1.getWorld().dropItem(player1.getLocation(), item);
 
         inventory.close();
 
         player1.sendMessage("Transaction completed!");
         player2.sendMessage("Transaction completed!");
+    }
+
+    public void cancel() {
+        List<ItemStack> player1Items = inventory.getPlayer1Items();
+        List<ItemStack> player2Items = inventory.getPlayer2Items();
+
+        // Drop items at opposite players' locations
+        for (ItemStack item : player1Items) player1.getWorld().dropItem(player1.getLocation(), item);
+        for (ItemStack item : player2Items) player2.getWorld().dropItem(player2.getLocation(), item);
+
+        inventory.close();
+
+        player1.sendMessage("Transaction cancelled!");
+        player2.sendMessage("Transaction cancelled!");
+    }
+
+    private void setPlayer1Confirmed(boolean confirmed) {
+        player1Confirmed = confirmed;
+        inventory.setPlayer1Confirmed(confirmed);
+    }
+
+    private void setPlayer2Confirmed(boolean confirmed) {
+        player2Confirmed = confirmed;
+        inventory.setPlayer2Confirmed(confirmed);
     }
 }
