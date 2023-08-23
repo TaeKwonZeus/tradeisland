@@ -1,6 +1,5 @@
 package net.cubicworld.tradeisland.trade;
 
-import net.cubicworld.tradeisland.TradeIslandPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -38,8 +37,6 @@ public class TradeInventory {
     private static final Material CONFIRM_ON_MATERIAL = Material.LIME_TERRACOTTA;
     private static final Material DECORATION_MATERIAL = Material.BLUE_STAINED_GLASS_PANE;
 
-    private final TradeIslandPlugin plugin;
-
     private final Inventory player1Inventory;
     private final Inventory player2Inventory;
 
@@ -50,8 +47,7 @@ public class TradeInventory {
             .boxed()
             .collect(Collectors.toMap(getIndices(ITEM_SLOT_MAIN)::get, getIndices(ITEM_SLOT_OTHER)::get));
 
-    public TradeInventory(TradeIslandPlugin plugin, Player player1, Player player2) {
-        this.plugin = plugin;
+    public TradeInventory(Player player1, Player player2) {
         this.player1 = player1;
         this.player2 = player2;
 
@@ -92,18 +88,16 @@ public class TradeInventory {
     }
 
     public void open() {
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            player1.openInventory(player1Inventory);
-            player2.openInventory(player2Inventory);
-        });
+        player1.openInventory(player1Inventory);
+        player2.openInventory(player2Inventory);
     }
 
     public void close() {
         if (player1.getOpenInventory().getTopInventory() == player1Inventory) {
-            Bukkit.getScheduler().runTask(plugin, player1::closeInventory);
+            player1.closeInventory();
         }
         if (player2.getOpenInventory().getTopInventory() == player2Inventory) {
-            Bukkit.getScheduler().runTask(plugin, player2::closeInventory);
+            player2.closeInventory();
         }
     }
 
@@ -164,25 +158,23 @@ public class TradeInventory {
     }
 
     public void reflectItemChange(Player player, int index) {
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            if (!matchingSlotIndices.containsKey(index)) throw new IllegalStateException("Invalid index");
+        if (!matchingSlotIndices.containsKey(index)) throw new IllegalStateException("Invalid index");
 
-            if (player.equals(player1)) {
-                ItemStack itemStack = player1Inventory.getItem(index);
-                if (itemStack == null || itemStack.getType() == Material.AIR) {
-                    player2Inventory.setItem(matchingSlotIndices.get(index), new ItemStack(Material.AIR));
-                } else {
-                    player2Inventory.setItem(matchingSlotIndices.get(index), new ItemStack(itemStack));
-                }
-            } else if (player.equals(player2)) {
-                ItemStack itemStack = player2Inventory.getItem(index);
-                if (itemStack == null || itemStack.getType() == Material.AIR) {
-                    player1Inventory.setItem(matchingSlotIndices.get(index), new ItemStack(Material.AIR));
-                } else {
-                    player1Inventory.setItem(matchingSlotIndices.get(index), new ItemStack(itemStack));
-                }
+        if (player.equals(player1)) {
+            ItemStack itemStack = player1Inventory.getItem(index);
+            if (itemStack == null || itemStack.getType() == Material.AIR) {
+                player2Inventory.setItem(matchingSlotIndices.get(index), new ItemStack(Material.AIR));
+            } else {
+                player2Inventory.setItem(matchingSlotIndices.get(index), new ItemStack(itemStack));
             }
-        });
+        } else if (player.equals(player2)) {
+            ItemStack itemStack = player2Inventory.getItem(index);
+            if (itemStack == null || itemStack.getType() == Material.AIR) {
+                player1Inventory.setItem(matchingSlotIndices.get(index), new ItemStack(Material.AIR));
+            } else {
+                player1Inventory.setItem(matchingSlotIndices.get(index), new ItemStack(itemStack));
+            }
+        }
     }
 
     private static List<Integer> getIndices(int cellType) {

@@ -49,10 +49,8 @@ public class TradeManager implements Listener, CommandExecutor {
         if (transaction == null) return;
 
         transaction.processInventoryClick(event);
-        if (transaction.bothConfirmed()) {
-            transaction.complete();
-            transactions.remove(transaction);
-        }
+
+        if (transaction.isCompleted()) transactions.remove(transaction);
     }
 
     @EventHandler
