@@ -58,7 +58,7 @@ public class TradeManager implements Listener, CommandExecutor {
         Transaction transaction = getTransaction(event.getInventory());
         if (transaction == null) return;
 
-        transaction.cancel();
+        if (!transaction.isCompleted()) transaction.cancel();
         transactions.remove(transaction);
     }
 

@@ -21,12 +21,13 @@ public class CompletionTimer extends BukkitRunnable {
     @Getter
     private boolean isCompleted = false;
 
-    // TODO fix dupe bug
     @Override
     public void run() {
         isRunning = true;
 
         if (countdown == 0) {
+            isCompleted = true;
+
             List<ItemStack> player1Items = inventory.getPlayer1Items();
             List<ItemStack> player2Items = inventory.getPlayer2Items();
 
@@ -39,13 +40,12 @@ public class CompletionTimer extends BukkitRunnable {
             player1.sendMessage("Transaction completed!");
             player2.sendMessage("Transaction completed!");
 
-            isCompleted = true;
-
             this.cancel();
+            return;
         }
 
-        player1.sendMessage("Transaction completed in " + countdown + "seconds...");
-        player2.sendMessage("Transaction completed in " + countdown + "seconds...");
+        player1.sendMessage("Transaction completed in " + countdown + " seconds...");
+        player2.sendMessage("Transaction completed in " + countdown + " seconds...");
         --countdown;
     }
 }
