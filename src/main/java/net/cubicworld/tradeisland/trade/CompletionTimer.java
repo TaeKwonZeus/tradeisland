@@ -2,6 +2,9 @@ package net.cubicworld.tradeisland.trade;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.cubicworld.tradeisland.util.Message;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -37,15 +40,18 @@ public class CompletionTimer extends BukkitRunnable {
 
             inventory.close();
 
-            player1.sendMessage("Transaction completed!");
-            player2.sendMessage("Transaction completed!");
+            player1.sendMessage(Message.info("trade.completed"));
+            player2.sendMessage(Message.info("trade.completed"));
 
+            isRunning = false;
             this.cancel();
             return;
         }
 
-        player1.sendMessage("Transaction completed in " + countdown + " seconds...");
-        player2.sendMessage("Transaction completed in " + countdown + " seconds...");
+        TextComponent message = Message.info("trade.remaining")
+                .append(Component.text(" " + countdown + "...", Message.INFO_COLOR));
+        player1.sendMessage(message);
+        player2.sendMessage(message);
         --countdown;
     }
 }

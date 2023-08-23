@@ -84,13 +84,14 @@ public class TradeInventory {
         if (skullMeta == null) return new ItemStack(Material.FIRE);
 
         skullMeta.setOwningPlayer(player);
-        skullMeta.setDisplayName(player.getDisplayName());
+        skullMeta.displayName(player.displayName());
 
         skull.setItemMeta(skullMeta);
 
         return skull;
     }
 
+    // TODO change string item names to TextComponents
     private Inventory generateInventory(Player main, Player other) {
         Inventory inventory = Bukkit.createInventory(main, 54, "Trade");
 

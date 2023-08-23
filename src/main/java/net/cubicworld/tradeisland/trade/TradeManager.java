@@ -22,6 +22,7 @@ public class TradeManager implements Listener, CommandExecutor {
 
     private final List<Transaction> transactions = new ArrayList<>();
 
+    // TODO change simple text messages to TextComponents
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) return false;

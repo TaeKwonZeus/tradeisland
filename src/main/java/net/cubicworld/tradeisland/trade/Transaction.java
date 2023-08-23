@@ -34,6 +34,7 @@ public class Transaction {
         return completionTimer.isCompleted();
     }
 
+    // TODO change String labels to TextComponents
     public void processInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         if (!player.equals(player1) && !player.equals(player2)) return;
