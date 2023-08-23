@@ -14,17 +14,10 @@ public class Transaction {
 
     private final Player player1;
     private final Player player2;
-
+    private final TradeInventory inventory;
     private boolean player1Confirmed = false;
     private boolean player2Confirmed = false;
-
-    private final TradeInventory inventory;
-
     private CompletionTimer completionTimer;
-
-    public boolean isCompleted() {
-        return completionTimer.isCompleted();
-    }
 
     public Transaction(TradeIslandPlugin plugin, Player player1, Player player2) {
         this.plugin = plugin;
@@ -35,6 +28,10 @@ public class Transaction {
         Bukkit.getScheduler().runTask(plugin, inventory::open);
 
         completionTimer = new CompletionTimer(player1, player2, inventory);
+    }
+
+    public boolean isCompleted() {
+        return completionTimer.isCompleted();
     }
 
     public void processInventoryClick(InventoryClickEvent event) {
@@ -59,14 +56,15 @@ public class Transaction {
         }
 
         Bukkit.getScheduler().runTask(plugin, () -> {
-           if (bothConfirmed()) complete();
-           else if (completionTimer.isRunning()) {
-               completionTimer.cancel();
-               completionTimer = new CompletionTimer(player1, player2, inventory);
+            if (bothConfirmed()) {
+                complete();
+            } else if (completionTimer.isRunning()) {
+                completionTimer.cancel();
+                completionTimer = new CompletionTimer(player1, player2, inventory);
 
-               player1.sendMessage("Transaction suspended!");
-               player2.sendMessage("Transaction suspended!");
-           }
+                player1.sendMessage("Transaction suspended!");
+                player2.sendMessage("Transaction suspended!");
+            }
         });
     }
 

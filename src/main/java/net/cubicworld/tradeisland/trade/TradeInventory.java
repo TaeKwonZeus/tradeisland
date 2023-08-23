@@ -36,16 +36,13 @@ public class TradeInventory {
     private static final Material CONFIRM_OFF_MATERIAL = Material.RED_TERRACOTTA;
     private static final Material CONFIRM_ON_MATERIAL = Material.LIME_TERRACOTTA;
     private static final Material DECORATION_MATERIAL = Material.BLUE_STAINED_GLASS_PANE;
-
-    private final Inventory player1Inventory;
-    private final Inventory player2Inventory;
-
-    private final Player player1;
-    private final Player player2;
-
     private static final Map<Integer, Integer> matchingSlotIndices = IntStream.range(0, getIndices(ITEM_SLOT_MAIN).size())
             .boxed()
             .collect(Collectors.toMap(getIndices(ITEM_SLOT_MAIN)::get, getIndices(ITEM_SLOT_OTHER)::get));
+    private final Inventory player1Inventory;
+    private final Inventory player2Inventory;
+    private final Player player1;
+    private final Player player2;
 
     public TradeInventory(Player player1, Player player2) {
         this.player1 = player1;
@@ -53,6 +50,45 @@ public class TradeInventory {
 
         player1Inventory = generateInventory(player1, player2);
         player2Inventory = generateInventory(player2, player1);
+    }
+
+    public static CellType getCellType(int index) {
+        return switch (LAYOUT[index]) {
+            case ITEM_SLOT_MAIN -> CellType.ITEM_SLOT_MAIN;
+            case ITEM_SLOT_OTHER -> CellType.ITEM_SLOT_OTHER;
+            case CONFIRM_MAIN -> CellType.CONFIRM_MAIN;
+            case CONFIRM_OTHER -> CellType.CONFIRM_OTHER;
+            case HEAD_MAIN -> CellType.HEAD_MAIN;
+            case HEAD_OTHER -> CellType.HEAD_OTHER;
+            case DECORATION -> CellType.DECORATION;
+            default -> throw new IllegalStateException("Unexpected value: " + LAYOUT[index]);
+        };
+    }
+
+    private static List<Integer> getIndices(int cellType) {
+        List<Integer> indices = new ArrayList<>();
+
+        for (int i = 0; i < LAYOUT.length; i++) {
+            if (LAYOUT[i] == cellType) {
+                indices.add(i);
+            }
+        }
+
+        return indices;
+    }
+
+    private static ItemStack getHead(Player player) {
+        ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
+
+        SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+        if (skullMeta == null) return new ItemStack(Material.FIRE);
+
+        skullMeta.setOwningPlayer(player);
+        skullMeta.setDisplayName(player.getDisplayName());
+
+        skull.setItemMeta(skullMeta);
+
+        return skull;
     }
 
     private Inventory generateInventory(Player main, Player other) {
@@ -99,19 +135,6 @@ public class TradeInventory {
         if (player2.getOpenInventory().getTopInventory() == player2Inventory) {
             player2.closeInventory();
         }
-    }
-
-    public static CellType getCellType(int index) {
-        return switch (LAYOUT[index]) {
-            case ITEM_SLOT_MAIN -> CellType.ITEM_SLOT_MAIN;
-            case ITEM_SLOT_OTHER -> CellType.ITEM_SLOT_OTHER;
-            case CONFIRM_MAIN -> CellType.CONFIRM_MAIN;
-            case CONFIRM_OTHER -> CellType.CONFIRM_OTHER;
-            case HEAD_MAIN -> CellType.HEAD_MAIN;
-            case HEAD_OTHER -> CellType.HEAD_OTHER;
-            case DECORATION -> CellType.DECORATION;
-            default -> throw new IllegalStateException("Unexpected value: " + LAYOUT[index]);
-        };
     }
 
     public List<ItemStack> getPlayer1Items() {
@@ -175,31 +198,5 @@ public class TradeInventory {
                 player1Inventory.setItem(matchingSlotIndices.get(index), new ItemStack(itemStack));
             }
         }
-    }
-
-    private static List<Integer> getIndices(int cellType) {
-        List<Integer> indices = new ArrayList<>();
-
-        for (int i = 0; i < LAYOUT.length; i++) {
-            if (LAYOUT[i] == cellType) {
-                indices.add(i);
-            }
-        }
-
-        return indices;
-    }
-
-    private static ItemStack getHead(Player player) {
-        ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
-
-        SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
-        if (skullMeta == null) return new ItemStack(Material.FIRE);
-
-        skullMeta.setOwningPlayer(player);
-        skullMeta.setDisplayName(player.getDisplayName());
-
-        skull.setItemMeta(skullMeta);
-
-        return skull;
     }
 }
