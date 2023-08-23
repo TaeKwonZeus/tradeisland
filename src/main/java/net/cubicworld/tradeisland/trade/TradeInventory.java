@@ -67,9 +67,8 @@ public class TradeInventory {
             ItemStack item = switch (cell) {
                 case ITEM_SLOT_MAIN, ITEM_SLOT_OTHER -> new ItemStack(Material.AIR);
                 case CONFIRM_MAIN -> newItemStackWithName(CONFIRM_OFF_MATERIAL, "Press to confirm");
-                case CONFIRM_OTHER ->
-                        newItemStackWithName(CONFIRM_OFF_MATERIAL, other.getDisplayName() + " confirmation");
-                case DECORATION -> newItemStackWithName(DECORATION_MATERIAL, "");
+                case CONFIRM_OTHER -> newItemStackWithName(CONFIRM_OFF_MATERIAL, "Confirmed: False");
+                case DECORATION -> newItemStackWithName(DECORATION_MATERIAL, " ");
                 case HEAD_MAIN -> getHead(main);
                 case HEAD_OTHER -> getHead(other);
                 default -> throw new IllegalStateException("Unexpected value: " + cell);
@@ -147,13 +146,20 @@ public class TradeInventory {
         setPlayerConfirm(value, player2Inventory, player1Inventory);
     }
 
-    // TODO set proper names for every cell type (CONFIRM_OFF_MATERIAL, DECORATION)
     private void setPlayerConfirm(boolean value, Inventory mainInventory, Inventory otherInventory) {
         for (int i = 0; i < LAYOUT.length; i++) {
-            if (LAYOUT[i] == CONFIRM_MAIN)
-                mainInventory.setItem(i, value ? new ItemStack(CONFIRM_ON_MATERIAL) : new ItemStack(CONFIRM_OFF_MATERIAL));
-            if (LAYOUT[i] == CONFIRM_OTHER)
-                otherInventory.setItem(i, value ? new ItemStack(CONFIRM_ON_MATERIAL) : new ItemStack(CONFIRM_OFF_MATERIAL));
+            if (LAYOUT[i] == CONFIRM_MAIN) {
+                if (value)
+                    mainInventory.setItem(i, newItemStackWithName(CONFIRM_ON_MATERIAL, "Press to cancel confirm"));
+                else
+                    mainInventory.setItem(i, newItemStackWithName(CONFIRM_OFF_MATERIAL, "Press to confirm"));
+            }
+            if (LAYOUT[i] == CONFIRM_OTHER) {
+                if (value)
+                    otherInventory.setItem(i, newItemStackWithName(CONFIRM_ON_MATERIAL, "Confirmed: True"));
+                else
+                    otherInventory.setItem(i, newItemStackWithName(CONFIRM_OFF_MATERIAL, "Confirmed: False"));
+            }
         }
     }
 
